@@ -70,7 +70,8 @@ sig
   type id
 
   (* The event type. *)
-  type 'a event
+  type 'a event 
+  (* reference to a list of listeners, where listeners have ... *)
 
   (* new_event -- Creates a new event. *)
   val new_event : unit -> 'a event
@@ -79,12 +80,14 @@ sig
      is called every time the event is fired. Returns an identifier for
      the listener. *)
   val add_listener : 'a event -> ('a -> unit) -> id
+  (* add listener adds the specified listener to the event ( a list of listeners )*)
 
   (* remove_listener event id -- Removes a listener (identified by its
      id) from an event, so it is no longer called when the event is
      fired. Has no effect if the listener is not listening for that
      event. *)
   val remove_listener : 'a event -> id -> unit
+   (* removes listener with a specific id from event *)
 
   (* fire_event event arg -- Signals that an event has occurred. The
      arg is passed to each listener waiting for the event. *)
@@ -122,7 +125,10 @@ decide how to implement this.
 ......................................................................*)
                                                    
   let add_listener (evt : 'a event) (listener : 'a -> unit) : id =
-    failwith "WEvent.add_listener not implemented"
+     let my_id = new_id () in 
+     evt := !evt :: [{id = my_id; action = listener}];
+     my_id
+
 
 (*......................................................................
 Exercise 2: Write remove_listener, which, given an id and an event,
@@ -131,7 +137,7 @@ one. If there is no listener with that id, do nothing.
 ......................................................................*)
             
   let remove_listener (evt : 'a event) (i : id) : unit =
-    failwith "WEvent.remove_listener not implemented"
+    
 
 (*......................................................................
 Exercise 3: Write fire_event, which will execute all event handlers
