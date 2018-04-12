@@ -137,7 +137,7 @@ one. If there is no listener with that id, do nothing.
 ......................................................................*)
             
   let remove_listener (evt : 'a event) (i : id) : unit =
-    
+    evt := List.filter (fun {id; action} -> id != i) !evt;
 
 (*......................................................................
 Exercise 3: Write fire_event, which will execute all event handlers
@@ -145,7 +145,9 @@ listening for the event.
 ......................................................................*)
             
   let fire_event (evt : 'a event) (arg : 'a) : unit =
-    failwith "WEvent.fire_event not implemented"
+    List.iter (fun {id; action} -> action arg) !evt
+
+    (* or we could use ignore *)
 
 end
   
@@ -160,9 +162,9 @@ and publish the headlines. *)
 (*......................................................................
 Exercise 4: Given your implementation of Event, create a new event
 called "newswire" that should pass strings to the event handlers.
-......................................................................*)
+.....................new.................................................*)
   
-let newswire = fun _ -> failwith "newswire not implemented" ;;
+let newswire = fun _ -> WEvent.new_event ();;
 
 (* News organizations might want to register event listeners to the
 newswire so that they might report on stories. Below are functions
@@ -179,8 +181,8 @@ let buzzFake (s : string) : unit =
 Exercise 5: Register these two news organizations as listeners to the
 newswire event.
 ......................................................................*)
-  
-(* .. *)
+
+let bfid = WEvent.add_listener newswire buzzFake ;;
 
 (* Here are some headlines to play with. *)
 
@@ -192,8 +194,8 @@ let h3 = "bactrian camels can weigh up to 2200lbs!" ;;
 Exercise 6: Finally, fire newswire events with the above three
 headlines, and observe what happens!
 ......................................................................*)
-  
-(* .. *)
+
+WEvent.fire_event newswire hi;;
 
 (* Imagine now that you work at Facebook, and you're growing concerned
 with the proliferation of fake news. To combat the problem, you decide
@@ -206,14 +208,14 @@ the publications don't publish right away. *)
 Exercise 7: Remove the newswire listeners that were previously registered.
 ......................................................................*)
 
-(* .. *)
+WEvent.remove_listener newswire bfid;;
 
 (*......................................................................
 Exercise 8: Create a new event called publish to signal that all
 stories should be published. The event should be a unit WEvent.event.
 ......................................................................*)
 
-let publish = fun _ -> failwith "publish not implemented" ;; 
+let publish = fun _ -> ;; 
 
 (*......................................................................
 Exercise 9: Write a function receive_report to handle new news
